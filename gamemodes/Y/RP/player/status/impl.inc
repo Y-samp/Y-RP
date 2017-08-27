@@ -1,0 +1,29 @@
+#if defined _inc_impl
+	#undef _inc_impl
+#endif
+
+#include <YSI\y_hooks>
+
+hook OnPlayerLogin(playerid)
+{
+	strcpy(Player.RP[playerid][name], Player.Auth[playerid][name]);
+	RPizeName(Player.Auth[playerid][name]);
+}
+
+RPizeName(name[], len = sizeof name)
+{
+	for (new i = 0; i != len; ++i) {
+		if (name[i] == '_') {
+			name[i] = ' ';
+		}
+	}
+}
+
+YCMD:stat(playerid, params[], help)
+{
+    if(help) return SCM(playerid, -1, "Not supported");
+
+    call OnPlayerStats(playerid);
+
+    return 1;
+}
