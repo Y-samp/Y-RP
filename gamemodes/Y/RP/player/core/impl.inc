@@ -17,7 +17,7 @@ public PlayerRestrictName(playerid)
 
 	new bool:hasUnderscore = false;
 	for (new i = 0; i != len; ++i) {
-		new isAlpha = 'a' < name[i] < 'z' || 'A' < name[i] < 'Z';
+		new isAlpha = 'a' <= name[i] <= 'z' || 'A' <= name[i] <= 'Z';
 		new isUnderscore = name[i] == '_';
 
 		if (isUnderscore) {

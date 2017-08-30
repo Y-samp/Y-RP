@@ -10,7 +10,7 @@ hook OnPlayerText(playerid, text[])
 		message[144 + 1]
 	;
 
-	format(message, sizeof message, "" RED "%s" GRAY ":" WHITE " %s", Player.RP[playerid][name], text);
+	format(message, sizeof message, "%s%s" GRAY ":" WHITE " %s", IsOnAdminDuty(playerid) ? RED : WHITE, Player.RP[playerid][name], text);
 
 	SendClientMessage(playerid, -1, message);
 

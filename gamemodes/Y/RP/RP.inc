@@ -14,11 +14,13 @@
 	#include "player\core\header"
 	#include "player\chat\header"
 	#include "player\status\header"
+	#include "player\admin\header"
 	#define Y_RP_HEADER
 #elseif !defined Y_RP_END
 	#include "player\core\impl"
 	#include "player\chat\impl"
 	#include "player\status\impl"
+	#include "player\admin\impl"
 	#define Y_RP_END
 #else
 	#error Y RP already set up
