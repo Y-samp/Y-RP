@@ -10,6 +10,11 @@ hook OnGameModeInit()
 {
 	AdminOnDuty = Group_Create("Admins on duty");
 
+	return 1;
+}
+
+hook OnGroupInit()
+{	
 	GROUP_ADD<AdminGroup[0]>
 	{
 		@YCMD:aduty;

@@ -18,12 +18,3 @@ RPizeName(name[], len = sizeof name)
 		}
 	}
 }
-
-YCMD:stat(playerid, params[], help)
-{
-    if(help) return SCM(playerid, -1, "Not supported");
-
-    call OnPlayerStats(playerid);
-
-    return 1;
-}
