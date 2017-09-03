@@ -6,6 +6,12 @@
 #include <YSI\y_commands>
 #include <YSI\y_dialog>
 
+enum {
+	E_FACTION_INSPECT_NAME,
+	E_FACTION_INSPECT_MONEY,
+	E_FACTION_INSPECT_MEMBERS
+}
+
 #define INVALID_FACTION_ID 	-1
 
 enum E_FACTION_META {
