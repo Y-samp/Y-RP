@@ -9,7 +9,8 @@
 
 enum E_FACTION_MEMBER {
 	DBID:E_FACTION_Member_player_id,
-	DBID:E_FACTION_Member_player[MAX_PLAYER_NAME + 1],
+	E_FACTION_Member_player_name[MAX_PLAYER_NAME + 1],
+	E_FACTION_Member_rank
 }
 
 new FactionMember[Y_RP_FACTION_LIMIT][E_FACTION_MEMBER][Y_RP_FACTION_MEMBER_LIMIT];
