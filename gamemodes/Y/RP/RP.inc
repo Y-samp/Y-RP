@@ -15,12 +15,18 @@
 	#include "player\chat\header"
 	#include "player\status\header"
 	#include "player\admin\header"
+	#if defined Y_RP_FACTION
+		#include "faction\header"
+	#endif
 	#define Y_RP_HEADER
 #elseif !defined Y_RP_END
 	#include "player\core\impl"
 	#include "player\chat\impl"
 	#include "player\status\impl"
 	#include "player\admin\impl"
+	#if defined Y_RP_FACTION
+		#include "faction\impl"
+	#endif
 	#define Y_RP_END
 #else
 	#error Y RP already set up
