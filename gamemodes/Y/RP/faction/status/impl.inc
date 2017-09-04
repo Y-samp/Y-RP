@@ -30,7 +30,7 @@ YCMD:setfactionmoney(playerid, params[], help)
 	if (factionid == INVALID_FACTION_ID) return Text_Send(playerid, $INVALID_FACTION_ID_ERROR); 
 
 	printf("Set faction %d money to %d", _:factionDBid, money);
-	Faction.Status[factionid][money] = money;
+	Faction.Status[factionid][@money] = money;
 
 	new query[72];
 	mysql_format(dbhandle, query, sizeof query, "UPDATE "FACTION_TABLE" SET money = %d WHERE id = %d", money, _:factionDBid);

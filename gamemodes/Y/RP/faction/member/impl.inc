@@ -14,18 +14,18 @@ ListFactionMembers(playerid, factionid)
 
 	foreach (new member:FactionMember[factionid]) {
 		new
-			playerDBid = Faction.Member[factionid][player_id][member],
+			DBID:playerDBid = Faction.Member[factionid][member][@player_id],
 			playername[MAX_PLAYER_NAME + 1],
-			rank = Faction.Member[factionid][rank][member],
+			rank = Faction.Member[factionid][member][@rank],
 			online[16]
 		;
 
 		strcpy(online, Iter_Contains(OnlineFactionMember[factionid], member) ? "Yes" : "No");
-		strcpy(playername, Faction.Member[factionid][player_name][member]);
+		strcpy(playername, Faction.Member[factionid][member][@player_name]);
 
-		log("WTF %s %s", playername, Faction.Member[factionid][player_name][member]);
+		log("WTF %s %s", playername, Faction.Member[factionid][member][@player_name]);
 
-		format(members, sizeof members, "%s\nid: %d) %s\t%d\t%s", members, playerDBid, playername, rank, online);
+		format(members, sizeof members, "%s\nid: %d) %s\t%d\t%s", members, _:playerDBid, playername, rank, online);
 	}
 
 	inline Response(pid, dialogid, response, listitem, string:inputtext[])

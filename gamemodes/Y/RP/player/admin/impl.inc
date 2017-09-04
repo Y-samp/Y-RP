@@ -30,13 +30,13 @@ YCMD:aduty(playerid, params[], help)
 	if (IsOnAdminDuty(playerid)) {
 		Group_SetPlayer(AdminOnDuty, playerid, false);
 		Text_Send(playerid, $ADUTY_OFF);
-		Text_Send(LoggedGroup, $ADUTY_BROADCAST_OFF, Player.RP[playerid][name]);
-		Text_Send(ALL_PLAYERS, $ADUTY_BROADCAST_OFF, Player.RP[playerid][name]);
+		Text_Send(LoggedGroup, $ADUTY_BROADCAST_OFF, Player.RP[playerid][@name]);
+		Text_Send(ALL_PLAYERS, $ADUTY_BROADCAST_OFF, Player.RP[playerid][@name]);
 	} else {
 		Group_SetPlayer(AdminOnDuty, playerid, true);
 		Text_Send(playerid, $ADUTY_ON);
-		Text_Send(LoggedGroup, $ADUTY_BROADCAST_ON, Player.RP[playerid][name]);
-		Text_Send(ALL_PLAYERS, $ADUTY_BROADCAST_ON, Player.RP[playerid][name]);
+		Text_Send(LoggedGroup, $ADUTY_BROADCAST_ON, Player.RP[playerid][@name]);
+		Text_Send(ALL_PLAYERS, $ADUTY_BROADCAST_ON, Player.RP[playerid][@name]);
 	}
 
 	return 1;

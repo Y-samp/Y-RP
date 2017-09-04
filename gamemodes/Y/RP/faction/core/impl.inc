@@ -41,16 +41,16 @@ hook OnGameModeInit()
 					break;
 				}
 
-				Faction.Meta[idx][id] = DBID:id;
-				cache_get_value_name(row, "name", Faction.Meta[idx][name]);
-				cache_get_value_name_int(row, "creator_id", _:Faction.Meta[idx][creator_id]);
-				cache_get_value_name(row, "creator", Faction.Meta[idx][creator_name]);
-				cache_get_value_name_int(row, "owner_id", _:Faction.Meta[idx][owner_id]);
-				cache_get_value_name(row, "owner", Faction.Meta[idx][owner_name]);
-				cache_get_value_name_int(row, "money", Faction.Status[idx][money]);
+				(DBID:Faction.Meta[idx][@id]) = DBID:id;
+				cache_get_value_name(row, "name", Faction.Meta[idx][@name]);
+				cache_get_value_name_int(row, "creator_id", _:Faction.Meta[idx][@creator_id]);
+				cache_get_value_name(row, "creator", Faction.Meta[idx][@creator_name]);
+				cache_get_value_name_int(row, "owner_id", _:Faction.Meta[idx][@owner_id]);
+				cache_get_value_name(row, "owner", Faction.Meta[idx][@owner_name]);
+				cache_get_value_name_int(row, "money", Faction.Status[idx][@money]);
 
-				RPizeName(Faction.Meta[idx][creator_name]);
-				RPizeName(Faction.Meta[idx][owner_name]);
+				RPizeName(Faction.Meta[idx][@creator_name]);
+				RPizeName(Faction.Meta[idx][@owner_name]);
 
 				Iter_Add(Faction, idx);
 				lastId = id;
@@ -62,11 +62,10 @@ hook OnGameModeInit()
 
 			if (hasMember) {
 				midx = Iter_Free(FactionMember[idx]);
-				cache_get_value_name_int(row, "player_id", Faction.Member[idx][player_id][midx]);
-				// It's like using stock compiler :/
-				cache_get_value_name(row, "member_name", Faction.Member[idx][player_name][midx], MAX_PLAYER_NAME + 1);
+				cache_get_value_name_int(row, "player_id", _:Faction.Member[idx][midx][@player_id]);
+				cache_get_value_name(row, "member_name", Faction.Member[idx][midx][@player_name]);
 
-				RPizeName(Faction.Member[idx][player_name][midx], MAX_PLAYER_NAME + 1);
+				RPizeName(Faction.Member[idx][midx][@player_name]);
 
 				Iter_Add(FactionMember[idx], midx);
 			}
@@ -74,7 +73,7 @@ hook OnGameModeInit()
 
 		foreach (new faction:Faction) {
 			foreach (new member:FactionMember[faction]) {
-				printf("Boop %d %s", faction, Faction.Member[faction][player_name][member]);
+				printf("Boop %d %s", faction, Faction.Member[faction][member][@player_name]);
 			}
 		}
 
@@ -108,7 +107,7 @@ hook OnGameModeInit()
 GetFactionIndexFromDBID(DBID:dbid)
 {
 	foreach (new faction:Faction) {
-		if (Faction.Meta[faction][id] == dbid) {
+		if ((DBID:Faction.Meta[faction][@id]) == dbid) {
 			return _:faction;
 		}
 	}
@@ -136,15 +135,15 @@ ListFactions(playerid)
 
 	foreach(new faction:Faction) {
 		new
-			id = _:Faction.Meta[faction][id],
+			id = _:Faction.Meta[faction][@id],
 			numMemebers = Iter_Count(FactionMember[faction]),
 			name[Y_RP_FACTION_MAX_NAME],
 			ownerName[MAX_PLAYER_NAME + 1],
-			money = Faction.Status[faction][money]
+			money = Faction.Status[faction][@money]
 		;
 
-		strcpy(name, Faction.Meta[faction][name]);
-		strcpy(ownerName, Faction.Meta[faction][owner_name]);
+		strcpy(name, Faction.Meta[faction][@name]);
+		strcpy(ownerName, Faction.Meta[faction][@owner_name]);
 
 		if (IsAdminLevel(playerid, 1)) {
 			format(factions, sizeof factions, "%s\nid: %d) %s\t%d\t%s\t$%d", factions, id, name, numMemebers, ownerName, money);
@@ -238,12 +237,12 @@ RenameFaction(playerid, factionid, bool:error = false)
 		}
 	
 		Text_Send(playerid, $FACTIONS_RENAMED, inputtext);
-		log("Faction %s renamed to %s", Faction.Meta[factionid][name], inputtext);
+		log("Faction %s renamed to %s", Faction.Meta[factionid][@name], inputtext);
 
-		strcpy(Faction.Meta[factionid][name], inputtext);
+		strcpy(Faction.Meta[factionid][@name], inputtext);
 
 		new query[60 + Y_RP_FACTION_MAX_NAME + 12 + 1];
-		mysql_format(dbhandle, query, sizeof query, "UPDATE " FACTION_TABLE " SET name = '%e' WHERE id = %d", inputtext, _:Faction.Meta[factionid][id]);
+		mysql_format(dbhandle, query, sizeof query, "UPDATE " FACTION_TABLE " SET name = '%e' WHERE id = %d", inputtext, _:Faction.Meta[factionid][@id]);
 		mysql_tquery(dbhandle, query);
 
 		InspectFaction(playerid, factionid);
@@ -255,7 +254,7 @@ RenameFaction(playerid, factionid, bool:error = false)
 		Text_Format_Dialog(errorText, sizeof errorText, Langs_GetPlayerLanguage(playerid), $FACTIONS_RENAME_ERROR, 1, Y_RP_FACTION_MAX_NAME);
 	}
 
-	Text_InputBox(playerid, using inline Response, $FACTIONS_RENAME_TITLE, $FACTIONS_RENAME_BODY, $OK, $BACK, errorText, Faction.Meta[factionid][name]);
+	Text_InputBox(playerid, using inline Response, $FACTIONS_RENAME_TITLE, $FACTIONS_RENAME_BODY, $OK, $BACK, errorText, Faction.Meta[factionid][@name]);
 
 	return 1;
 }
@@ -277,13 +276,13 @@ EditFactionMoney(playerid, factionid, bool:error = false)
 			@return 1;
 		}
 		
-		Faction.Status[factionid][money] = money;
+		Faction.Status[factionid][@money] = money;
 
 		Text_Send(playerid, $FACTIONS_SET_MONEY_DONE, money);
-		log("Faction %s money set to %d", Faction.Meta[factionid][name], money);
+		log("Faction %s money set to %d", Faction.Meta[factionid][@name], money);
 
 		new query[60 + Y_RP_FACTION_MAX_NAME + 12 + 1];
-		mysql_format(dbhandle, query, sizeof query, "UPDATE " FACTION_TABLE " SET money = %d WHERE id = %d", money, _:Faction.Meta[factionid][id]);
+		mysql_format(dbhandle, query, sizeof query, "UPDATE " FACTION_TABLE " SET money = %d WHERE id = %d", money, _:Faction.Meta[factionid][@id]);
 		mysql_tquery(dbhandle, query);
 
 		InspectFaction(playerid, factionid);	
@@ -295,7 +294,7 @@ EditFactionMoney(playerid, factionid, bool:error = false)
 		Text_Format_Dialog(errorText, sizeof errorText, Langs_GetPlayerLanguage(playerid), $FACTIONS_SET_MONEY_ERROR, Y_RP_FACTION_MAX_DEBT, Y_RP_FACTION_MAX_MONEY);
 	}
 
-	Text_InputBox(playerid, using inline Response, $FACTIONS_SET_MONEY_TITLE, $FACTIONS_SET_MONEY_BODY, $OK, $BACK, errorText, Faction.Meta[factionid][name]);
+	Text_InputBox(playerid, using inline Response, $FACTIONS_SET_MONEY_TITLE, $FACTIONS_SET_MONEY_BODY, $OK, $BACK, errorText, Faction.Meta[factionid][@name]);
 
 	return 1;
 }
@@ -328,20 +327,20 @@ YCMD:createfaction(playerid, params[], help)
 	inline FactionCreated()
 	{
 		Iter_Add(Faction, slot);
-		Faction.Meta[slot][id] = DBID:cache_insert_id();
+		(DBID:Faction.Meta[slot][@id]) = DBID:cache_insert_id();
 	
 		new query[128 + 1];
-		mysql_format(dbhandle, query, sizeof query, "INSERT INTO faction_members(faction_id, player_id, rank) VALUES(%d, %d, %d)", _:Faction.Meta[slot][id], _:Player.Auth[ownerid][id], Y_RP_FACTION_MAX_RANK);
+		mysql_format(dbhandle, query, sizeof query, "INSERT INTO faction_members(faction_id, player_id, rank) VALUES(%d, %d, %d)", _:Faction.Meta[slot][@id], _:Player.Auth[ownerid][@id], Y_RP_FACTION_MAX_RANK);
 		mysql_pquery(dbhandle, query);
 	}
 
 	new query[80 + 32 + 32 + 1];
-	mysql_format(dbhandle, query, sizeof query, "INSERT INTO factions(creator_id, owner_id, name, money) VALUES(%d, %d, '%e', %d)", _:Player.Auth[playerid][id], _:Player.Auth[ownerid][id], name, budget);
+	mysql_format(dbhandle, query, sizeof query, "INSERT INTO factions(creator_id, owner_id, name, money) VALUES(%d, %d, '%e', %d)", _:Player.Auth[playerid][@id], _:Player.Auth[ownerid][@id], name, budget);
 	mysql_pquery_inline(dbhandle, query, using inline FactionCreated);
 
 	Text_Send(playerid, $ACTION_SUCCESS);
 	Text_Send(ownerid, $OWNER_FACTION, name, budget);
-	Text_Send(ALL_PLAYERS, $NEW_FACTION, name, Player.RP[playerid][name], Player.RP[ownerid][name]);
+	Text_Send(ALL_PLAYERS, $NEW_FACTION, name, Player.RP[playerid][@name], Player.RP[ownerid][@name]);
 
 	return 1;
 }

@@ -6,8 +6,8 @@
 
 hook OnPlayerLogin(playerid)
 {
-	strcpy(Player.RP[playerid][name], Player.Auth[playerid][name]);
-	RPizeName(Player.RP[playerid][name]);
+	strcpy(Player.RP[playerid][@name], Player.Auth[playerid][@name]);
+	RPizeName(Player.RP[playerid][@name]);
 }
 
 RPizeName(name[], len = sizeof name)

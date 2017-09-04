@@ -32,23 +32,25 @@ hook OnLoadObjects()
 				break;
 			}
 
-			cache_get_value_name_int(row, "id", Faction.Object[factionid][id][slot]);
-			Faction.Object[factionid][faction_id][slot] = _:factionDBid;
+			new id = 
+			cache_get_value_name_int(row, "id", id);
+			Faction.Object[factionid][slot][@id] = DBID:id;
+			Faction.Object[factionid][slot][@faction_id] = factionDBid;
 
-			cache_get_value_name_int(row, "object_id", _:Object[objectIndex][id]);
+			cache_get_value_name_int(row, "object_id", _:Object[objectIndex][@id]);
 
-			Faction.Object[factionid][object_id][slot] = _:Object[objectIndex][id];
-			Faction.Object[factionid][object][slot] = objectIndex;
+			Faction.Object[factionid][slot][@object_id] = Object[objectIndex][@id];
+			Faction.Object[factionid][slot][@object] = objectIndex;
 
-			cache_get_value_name_int(row, "model", Object[objectIndex][model]);
-			cache_get_value_name_float(row, "X", Object[objectIndex][pos][0]);
-			cache_get_value_name_float(row, "Y", Object[objectIndex][pos][1]);
-			cache_get_value_name_float(row, "Z", Object[objectIndex][pos][2]);
-			cache_get_value_name_float(row, "RX", Object[objectIndex][rot][0]);
-			cache_get_value_name_float(row, "RY", Object[objectIndex][rot][1]);
-			cache_get_value_name_float(row, "RZ", Object[objectIndex][rot][2]);
-			cache_get_value_name_int(row, "world", Object[objectIndex][world]);
-			cache_get_value_name_int(row, "interior", Object[objectIndex][int]);
+			cache_get_value_name_int(row, "model", Object[objectIndex][@model]);
+			cache_get_value_name_float(row, "X", Object[objectIndex][@pos][0]);
+			cache_get_value_name_float(row, "Y", Object[objectIndex][@pos][1]);
+			cache_get_value_name_float(row, "Z", Object[objectIndex][@pos][2]);
+			cache_get_value_name_float(row, "RX", Object[objectIndex][@rot][0]);
+			cache_get_value_name_float(row, "RY", Object[objectIndex][@rot][1]);
+			cache_get_value_name_float(row, "RZ", Object[objectIndex][@rot][2]);
+			cache_get_value_name_int(row, "world", Object[objectIndex][@world]);
+			cache_get_value_name_int(row, "interior", Object[objectIndex][@int]);
 
 			Iter_Add(Object, objectIndex);
 			Iter_Add(FactionObject[factionid], slot);
