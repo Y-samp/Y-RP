@@ -6,6 +6,8 @@
 #include <YSI\y_commands>
 #include <YSI\y_dialog>
 
+#define Faction. OO_TYPE(FACTION,Faction)
+
 enum {
 	E_FACTION_INSPECT_NAME,
 	E_FACTION_INSPECT_MONEY,
@@ -25,10 +27,5 @@ enum E_FACTION_META {
 
 new FactionMeta[Y_RP_FACTION_LIMIT][E_FACTION_META];
 new Iterator:Faction<Y_RP_FACTION_LIMIT>;
-
-
-#define Faction.%0[%1] (_:@vf:@ve:Faction@%0[%1]
-#define @ve:Faction@%0[%1][@%2] Faction%0[%1])[E_FACTION_%0_%2]
-#define @vf:@ve:Faction@%0[%1][%2][@%3] Faction%0[%1])[%2][E_FACTION_%0_%3]
 
 #define FACTION_TABLE "factions"

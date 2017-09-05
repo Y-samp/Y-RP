@@ -41,7 +41,7 @@ hook OnGameModeInit()
 					break;
 				}
 
-				(DBID:Faction.Meta[idx][@id]) = DBID:id;
+				Faction.Meta[idx][@id] = DBID:id;
 				cache_get_value_name(row, "name", Faction.Meta[idx][@name]);
 				cache_get_value_name_int(row, "creator_id", _:Faction.Meta[idx][@creator_id]);
 				cache_get_value_name(row, "creator", Faction.Meta[idx][@creator_name]);
@@ -327,7 +327,7 @@ YCMD:createfaction(playerid, params[], help)
 	inline FactionCreated()
 	{
 		Iter_Add(Faction, slot);
-		(DBID:Faction.Meta[slot][@id]) = DBID:cache_insert_id();
+		Faction.Meta[slot][@id] = DBID:cache_insert_id();
 	
 		new query[128 + 1];
 		mysql_format(dbhandle, query, sizeof query, "INSERT INTO faction_members(faction_id, player_id, rank) VALUES(%d, %d, %d)", _:Faction.Meta[slot][@id], _:Player.Auth[ownerid][@id], Y_RP_FACTION_MAX_RANK);
