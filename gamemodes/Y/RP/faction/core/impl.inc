@@ -71,12 +71,6 @@ hook OnGameModeInit()
 			}
 		}
 
-		foreach (new faction:Faction) {
-			foreach (new member:FactionMember[faction]) {
-				printf("Boop %d %s", faction, Faction.Member[faction][member][@player_name]);
-			}
-		}
-
 		log("Loaded %d factions", Iter_Count(Faction));
 
 		LoadedSystems++;
@@ -107,7 +101,7 @@ hook OnGameModeInit()
 GetFactionIndexFromDBID(DBID:dbid)
 {
 	foreach (new faction:Faction) {
-		if ((DBID:Faction.Meta[faction][@id]) == dbid) {
+		if (Faction.Meta[faction][@id] == dbid) {
 			return _:faction;
 		}
 	}

@@ -32,10 +32,10 @@ hook OnLoadObjects()
 				break;
 			}
 
-			new id = 
-			cache_get_value_name_int(row, "id", id);
+			new id = cache_get_value_name_int(row, "id", id);
 			Faction.Object[factionid][slot][@id] = DBID:id;
 			Faction.Object[factionid][slot][@faction_id] = factionDBid;
+			cache_get_value_name(row, "name", Faction.Object[factionid][slot][@name]);
 
 			cache_get_value_name_int(row, "object_id", _:Object[objectIndex][@id]);
 

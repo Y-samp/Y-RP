@@ -18,3 +18,12 @@ RPizeName(name[], len = sizeof name)
 		}
 	}
 }
+
+UnRPizeName(name[], len = sizeof name)
+{
+	for (new i = 0; i != len; ++i) {
+		if (name[i] == ' ') {
+			name[i] = '_';
+		}
+	}	
+}

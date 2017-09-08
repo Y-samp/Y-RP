@@ -28,4 +28,4 @@ enum E_FACTION_META {
 new FactionMeta[Y_RP_FACTION_LIMIT][E_FACTION_META];
 new Iterator:Faction<Y_RP_FACTION_LIMIT>;
 
-#define FACTION_TABLE "factions"
+#define FACTION_TABLE "rp_factions"
