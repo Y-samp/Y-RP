@@ -29,3 +29,5 @@ new Group:FactionLeaderGroup;
 new Group:FactionGroup[Y_RP_FACTION_LIMIT];
 
 #define FACTION_MEMBER_TABLE "rp_faction_members"
+
+#define IsFactionLeader(%0) Group_GetPlayer(FactionLeaderGroup, %0)

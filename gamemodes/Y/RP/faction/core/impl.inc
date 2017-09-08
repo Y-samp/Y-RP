@@ -64,6 +64,7 @@ hook OnGameModeInit()
 				midx = Iter_Free(FactionMember[idx]);
 				cache_get_value_name_int(row, "player_id", _:Faction.Member[idx][midx][@player_id]);
 				cache_get_value_name(row, "member_name", Faction.Member[idx][midx][@player_name]);
+				cache_get_value_name_int(row, "rank", Faction.Member[idx][midx][@rank]);
 
 				RPizeName(Faction.Member[idx][midx][@player_name]);
 
@@ -167,11 +168,24 @@ ListFactions(playerid)
 			err("Something went wrong while inspecting factions by %d", playerid);
 		}
 
+		new bool:authorized = false;
+
+		if (!IsAdminLevel(playerid, Y_RP_FACTION_ADMIN_MANAGE_LEVEL)) {
+			if (IsFactionLevel(playerid, faction, Y_RP_FACTION_MANAGE_PLAYER_LEVEL)) {
+				authorized = true;
+			}
+
+			if (!authorized) {
+				Text_Send(playerid, $FACTIONS_LIST_NOT_YOURS);
+				@return ListFactions(playerid);
+			}
+		}
+
 		InspectFaction(playerid, faction);
 	
 		@return 1;
 	}
-	
+
 	Text_FormattedTablistHeadersBox(playerid, using inline Inspect, $FACTIONS_LIST_TITLE, factions, $INSPECT, $CLOSE);
 
 	return 1;
@@ -191,22 +205,40 @@ InspectFaction(playerid, factionid)
 			@return 1;
 		}
 
+		new
+			bool:authorizedName = false,
+			bool:authorizedMoney = false
+		;
+
+		if (IsAdminLevel(playerid, Y_RP_FACTION_ADMIN_MANAGE_LEVEL)) {
+			authorizedName = true;
+			authorizedMoney = true;
+		} else if (IsFactionLevel(playerid, factionid, Y_RP_FACTION_CHANGE_NAME_LEVEL)) {
+			authorizedName = true;
+		}
+
 		switch (listitem) {
 			case E_FACTION_INSPECT_NAME: {
-				RenameFaction(playerid, factionid);
+				if (authorizedName) {
+					@return RenameFaction(playerid, factionid);
+				}
 			}
 			case E_FACTION_INSPECT_MONEY: {
-				EditFactionMoney(playerid, factionid);
+				if (authorizedMoney) {
+					@return EditFactionMoney(playerid, factionid);
+				}
 			}
 			case E_FACTION_INSPECT_MEMBERS: {
-				ListFactionMembers(playerid, factionid);
+				@return ListFactionMembers(playerid, factionid);
 			}
 			default: {
 				err("Player %d chose invalid option %d", playerid, listitem);
 			}
 		}
+
+		Text_Send(playerid, $UNAUTHORIZED_ACTION);
 	
-		@return 1;
+		@return InspectFaction(playerid, factionid);
 	}
 	
 	Text_ListBox(playerid, using inline Response, $FACTIONS_INSPECT_TITLE, $FACTIONS_INSPECT_OPTIONS, $SELECT, $BACK);

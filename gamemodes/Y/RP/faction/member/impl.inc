@@ -52,6 +52,19 @@ hook OnPlayerDisconnect(playerid, reason)
 	return 1;
 }
 
+IsFactionLevel(playerid, factionid, level)
+{
+	foreach (new member:FactionMember[factionid]) {
+		if (Faction.Member[factionid][member][@player] == playerid) {
+			if (Faction.Member[factionid][member][@rank] >= level) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 ListFactionMembers(playerid, factionid)
 {
 	new
@@ -77,7 +90,13 @@ ListFactionMembers(playerid, factionid)
 		format(members, sizeof members, "%s\nid: %d) %s\t%d\t%s", members, _:playerDBid, playername, rank, online);
 	}
 
-	if (Iter_Free(FactionMember[factionid]) != INVALID_ITERATOR_SLOT) {
+	if (
+		(
+			IsAdminLevel(playerid, Y_RP_FACTION_ADMIN_MANAGE_LEVEL) ||
+			IsFactionLevel(playerid, factionid, Y_RP_FACTION_MANAGE_PLAYER_LEVEL)
+		) &&
+		Iter_Free(FactionMember[factionid]) != INVALID_ITERATOR_SLOT
+	) {
 		new tmp[32];
 		Text_Format_Other(tmp, sizeof tmp, Langs_GetPlayerLanguage(playerid), $FACTIONS_MEMBERS_LIST_ADD);
 		format(members, sizeof members, "%s\n%s", members, tmp);
@@ -251,14 +270,26 @@ FactionInspectMember(playerid, factionid, member)
 		}
 
 		if (listitem == 0) {
-			FactionChangeMemberRankDialog(playerid, factionid, member);
+			if (
+				IsAdminLevel(playerid, Y_RP_FACTION_ADMIN_MANAGE_LEVEL) ||
+				IsFactionLevel(playerid, factionid, Y_RP_FACTION_CHANGE_RANK_LEVEL)
+			) {
+				@return FactionChangeMemberRankDialog(playerid, factionid, member);
+			}
 
-			@return 1;
+			Text_Send(playerid, $UNAUTHORIZED_ACTION);
+
+			@return FactionInspectMember(playerid, factionid, member);
 		}
 
-		FactionConfirmRemove(playerid, factionid, member);
+		if (
+			IsAdminLevel(playerid, Y_RP_FACTION_ADMIN_MANAGE_LEVEL) ||
+			IsFactionLevel(playerid, factionid, Y_RP_FACTION_MANAGE_PLAYER_LEVEL)
+		) {
+			@return FactionConfirmRemove(playerid, factionid, member);
+		}
 	
-		@return 1;
+		@return Text_Send(playerid, $UNAUTHORIZED_ACTION);
 	}
 	
 	Text_ListBox(playerid, using inline Response, $FACTION_INSPECT_MEMBER_TITLE, $FACTION_INSPECT_MEMBER_BODY, $INSPECT, $BACK);
@@ -299,7 +330,7 @@ FactionChangeMemberRankDialog(playerid, factionid, member, error = 0)
 		Text_Format_Dialog(errorText, sizeof errorText, Langs_GetPlayerLanguage(playerid), $FACTION_INSPECT_MEMBER_CHANGE_RANK_INVALID);
 	}
 	
-	Text_InputBox(playerid, using inline Response, $FACTION_INSPECT_MEMBER_CHANGE_RANK_TITLE, $FACTION_INSPECT_MEMBER_CHANGE_RANK_BODY, $OK, $BACK, errorText, Faction.Member[factionid][member][@player_name], 0, Y_RP_FACTION_MAX_RANK - 1);
+	return Text_InputBox(playerid, using inline Response, $FACTION_INSPECT_MEMBER_CHANGE_RANK_TITLE, $FACTION_INSPECT_MEMBER_CHANGE_RANK_BODY, $OK, $BACK, errorText, Faction.Member[factionid][member][@player_name], 0, Y_RP_FACTION_MAX_RANK - 1);
 }
 
 FactionChangeMemberRank(factionid, member, rank)
@@ -336,7 +367,7 @@ FactionConfirmRemove(playerid, factionid, member)
 		@return 1;
 	}
 	
-	Text_MessageBox(playerid, using inline Response, $FACTION_INSPECT_MEMBER_REMOVE_TITLE, $FACTION_INSPECT_MEMBER_REMOVE_BODY, $OK, $BACK, Faction.Member[factionid][member][@player_name]);
+	return Text_MessageBox(playerid, using inline Response, $FACTION_INSPECT_MEMBER_REMOVE_TITLE, $FACTION_INSPECT_MEMBER_REMOVE_BODY, $OK, $BACK, Faction.Member[factionid][member][@player_name]);
 }
 
 FactionRemovePlayer(factionid, member)
