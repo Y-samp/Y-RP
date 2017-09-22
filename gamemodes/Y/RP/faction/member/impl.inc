@@ -65,6 +65,24 @@ IsFactionLevel(playerid, factionid, level)
 	return false;
 }
 
+IsPlayerInAnyFaction(playerid)
+{
+	return !!Group_GetPlayer(AllFactionGroup, playerid);
+}
+
+// GetPlayerFactionGroup(playerid)
+// {
+// 	foreach (new faction:Faction) {
+// 		foreach (new member:OnlineFactionMember[faction]) {
+// 	  	if (Faction.Member[faction][member][@player] == playerid) {
+// 	  		return FactionGroup[faction];
+// 	  	}
+// 	  }
+// 	}
+
+// 	return INVALID_GROUP;
+// }
+
 ListFactionMembers(playerid, factionid)
 {
 	new

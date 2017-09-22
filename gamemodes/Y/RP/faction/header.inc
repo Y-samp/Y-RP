@@ -6,3 +6,4 @@
 #include "status\header"
 #include "member\header"
 #include "object\header"
+#include "chat\header"

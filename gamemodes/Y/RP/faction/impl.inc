@@ -6,3 +6,4 @@
 #include "status\impl"
 #include "member\impl"
 #include "object\impl"
+#include "chat\impl"
