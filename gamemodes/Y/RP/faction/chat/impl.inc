@@ -16,7 +16,6 @@ hook OnGroupInit()
 		@YCMD:f;
 	}
 
-
 	return 1;
 }
 

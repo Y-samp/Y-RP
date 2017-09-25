@@ -91,7 +91,7 @@ hook OnGameModeInit()
 		LEFT JOIN " PLAYER_TABLE " p1 ON p1.id = f.creator_id \
 		LEFT JOIN " PLAYER_TABLE " p2 ON p2.id = f.owner_id \
 		LEFT JOIN " PLAYER_TABLE " p3 ON p3.id = fm.player_id \
-		GROUP BY fm.id \
+		GROUP BY fm.id, f.id \
 		ORDER BY f.id ASC, fm.id ASC");
 	mysql_pquery_inline(dbhandle, query, using inline Handler);
 	TotalSystems++;
