@@ -6,19 +6,53 @@
 
 loadtext y[core], y_rp_factions[core];
 
+hook OnGameModeInit()
+{
+	AllFactionGroup = Group_Create("In faction");
+	FactionLeaderGroup = Group_Create("Faction leader");
+	for (new i = 0; i != Y_RP_FACTION_LIMIT; ++i) {
+		new name[12];
+		format(name, sizeof name, "Faction %d", i + 1);
+		FactionGroup[i] = Group_Create(name);
+	}
+
+	return 1;
+}
+
 hook OnPlayerLogin(playerid)
 {
-	new bool:inAnyGroup = false;
+	new
+		bool:breakOut = false,
+		bool:inAnyGroup = false
+	;
 
 	foreach (new faction:Faction) {
+		new
+			bool:isCurrentLeader = false
+		;
+
 		if (Faction.Meta[faction][@owner_id] == Player.Auth[playerid][@id]) {
+			if (inAnyGroup) {
+				MoreThanOneGroupWarning();
+
+				break;
+			}
+
 			Iter_Add(FactionLeader, faction);
 			Group_SetPlayer(FactionLeaderGroup, playerid, true);
 			inAnyGroup = true;
+			isCurrentLeader = true;
 		}
 
 		foreach (new member:FactionMember[faction]) {
 			if (Faction.Member[faction][member][@player_id] == Player.Auth[playerid][@id]) {
+				if (!isCurrentLeader && inAnyGroup) {
+					MoreThanOneGroupWarning();
+
+					breakOut = true;
+					break;
+				}
+
 				Iter_Add(OnlineFactionMember[faction], member);
 				Faction.Member[faction][member][@player] = playerid;
 				Group_SetPlayer(FactionGroup[faction], playerid, true);
@@ -26,6 +60,10 @@ hook OnPlayerLogin(playerid)
 
 				break;
 			}
+		}
+
+		if (breakOut) {
+			break;
 		}
 	}
 
@@ -52,6 +90,11 @@ hook OnPlayerDisconnect(playerid, reason)
 	return 1;
 }
 
+MoreThanOneGroupWarning()
+{
+	err("Player is in more than one faction, leaving him in first one found");
+}
+
 IsFactionLevel(playerid, factionid, level)
 {
 	foreach (new member:FactionMember[factionid]) {
@@ -70,18 +113,18 @@ IsPlayerInAnyFaction(playerid)
 	return !!Group_GetPlayer(AllFactionGroup, playerid);
 }
 
-// GetPlayerFactionGroup(playerid)
-// {
-// 	foreach (new faction:Faction) {
-// 		foreach (new member:OnlineFactionMember[faction]) {
-// 	  	if (Faction.Member[faction][member][@player] == playerid) {
-// 	  		return FactionGroup[faction];
-// 	  	}
-// 	  }
-// 	}
+Group:GetPlayerFactionGroup(playerid)
+{
+	foreach (new faction:Faction) {
+		foreach (new member:OnlineFactionMember[faction]) {
+	  	if (Faction.Member[faction][member][@player] == playerid) {
+	  		return FactionGroup[faction];
+	  	}
+	  }
+	}
 
-// 	return INVALID_GROUP;
-// }
+	return INVALID_GROUP;
+}
 
 ListFactionMembers(playerid, factionid)
 {
@@ -183,7 +226,9 @@ FactionAddMemberDialog(playerid, factionid, error = 0)
 			inline Handler()
 			{
 				new 
-					DBID:targetDBid = INVALID_DB_ID
+					DBID:targetDBid = INVALID_DB_ID,
+					memberAnywhere,
+					leaderAnywhere
 				;	
 
 				if (!cache_num_rows()) {
@@ -191,6 +236,12 @@ FactionAddMemberDialog(playerid, factionid, error = 0)
 				}
 
 				cache_get_value_name_int(0, "id", _:targetDBid);
+				cache_get_value_name_int(0, "member", memberAnywhere);
+				cache_get_value_name_int(0, "leader", leaderAnywhere);
+
+				if (memberAnywhere || leaderAnywhere) {
+					@return	FactionAddMemberDialog(playerid, factionid, E_FACTION_PLAYER_IN_ANY_FACTION);
+				}
 
 				RPizeName(probableName);
 
@@ -204,11 +255,15 @@ FactionAddMemberDialog(playerid, factionid, error = 0)
 				ListFactionMembers(playerid, factionid);
 			}
 
-			new query[50 + MAX_PLAYER_NAME + 1];
-			mysql_format(dbhandle, query, sizeof query, "SELECT id FROM " PLAYER_TABLE " WHERE name = '%e'", probableName);
+			new query[190 + MAX_PLAYER_NAME + 1];
+			mysql_format(dbhandle, query, sizeof query, "SELECT p.id, (SELECT COUNT(*) FROM " FACTION_MEMBER_TABLE " WHERE player_id = p.id) AS member, (SELECT COUNT(*) FROM " FACTION_TABLE " WHERE owner_id = p.id) AS leader FROM " PLAYER_TABLE " p WHERE p.name = '%e'", probableName);
 			mysql_tquery_inline(dbhandle, query, using inline Handler);
 
 			@return 1;
+		}
+
+		if (IsPlayerInAnyFaction(targetid)) {
+			@return FactionAddMemberDialog(playerid, factionid, E_FACTION_PLAYER_IN_ANY_FACTION);
 		}
 
 		foreach (new slot:OnlineFactionMember[factionid]) {
@@ -231,9 +286,11 @@ FactionAddMemberDialog(playerid, factionid, error = 0)
 	}
 
 	new errorText[64];
-	if (error == 1) {
+	if (error == E_FACTION_INVALID_PLAYER) {
 		Text_Format_Dialog(errorText, sizeof errorText, Langs_GetPlayerLanguage(playerid), $FACTIONS_MEMBERS_ADD_ERROR_PLAYER);
-	} else if (error == 2){
+	} else if (error == E_FACTION_PLAYER_IN_ANY_FACTION) {
+		Text_Format_Dialog(errorText, sizeof errorText, Langs_GetPlayerLanguage(playerid), $FACTIONS_MEMBERS_ADD_ERROR_ALREADY_IN_FACTION);		
+	} else if (error == E_FACTION_PLAYER_ALREADY_ADDED) {
 		Text_Format_Dialog(errorText, sizeof errorText, Langs_GetPlayerLanguage(playerid), $FACTIONS_MEMBERS_ADD_ERROR_ALREADY_ADDED);
 	}
 
