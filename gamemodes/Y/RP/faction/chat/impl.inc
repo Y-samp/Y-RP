@@ -4,10 +4,10 @@
 
 #include <YSI\y_text>
 
-loadtext y_rp_factions[core];
+loadtext y[core], y_rp_factions[core];
 
 hook OnGroupInit()
-{	
+{
 	Command_AddAlt(YCMD:factionchat, "f");
 	
 	GROUP_ADD<AllFactionGroup>
@@ -29,18 +29,48 @@ YCMD:factionchat(playerid, params[], help)
 		return Text_Send(playerid, $NOT_IN_ANY_FACTION);
 	}
 
-	new
-		message[128],
-		factionPerson[Y_RP_FACTION_MAX_RANK_NAME + MAX_PLAYER_NAME + 32] // name + rank + brackets + colours
-	;
+	new message[129];
 
 	if (sscanf(params, "s[129]", message)) {
 		return Text_Send(playerid, $INVALID_COMMAND_PARAMS_F, YCMD:factionchat);
 	}
 
-	strcpy(factionPerson, "{ERROR}WTF Nigguh{NORMAL}: ");
+	new
+		factionid = INVALID_FACTION_ID,
+		rank = 0
+	;
 
-	Text_Send(factionGroup, $FACTION_GROUP_CHAT, factionPerson, message);
+	foreach (new faction:Faction) {
+		new breakOut = false;
+		foreach (new member:OnlineFactionMember[faction]) {
+	  	if (Faction.Member[faction][member][@player] == playerid) {
+	  		factionid = faction;
+	  		rank = Faction.Member[faction][member][@rank];
+	  		breakOut = true;
+	  		break;
+	  	}
+	  }
+
+		if (breakOut) {
+	  	break;
+	  }
+	}
+
+	if (factionid == INVALID_FACTION_ID) {
+		err("Valid group but invalid faction index, should not happen");
+
+		return Text_Send(playerid, $INTERNAL_ERROR);
+	}
+
+	new
+		toBeSent[145]
+	;
+
+	format(toBeSent, sizeof toBeSent, "{%06x}[%s]{%06x}: %s", Faction.Rank[factionid][rank][@colour] >>> 8, Faction.Rank[factionid][rank][@name], GetColour("NORMAL") >>> 8, message);
+
+	foreach (new member:GroupMember(factionGroup)) {
+		SCM(member, -1, toBeSent);
+	}
 
 	return 1;
 }

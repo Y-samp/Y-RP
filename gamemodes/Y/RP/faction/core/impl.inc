@@ -70,6 +70,23 @@ hook OnGameModeInit()
 
 				Iter_Add(FactionMember[idx], midx);
 			}
+
+			new bool:hasRank;
+			cache_is_value_name_null(row, "rank_meta", hasRank);
+			hasRank = !hasRank;
+
+			if (hasRank) {
+				new ridx;
+				cache_get_value_name_int(row, "rank_meta", ridx);
+
+				if (!(0 <= ridx < Y_RP_FACTION_MAX_RANK)) {
+					err("Invalid rank (%d) loaded from database for faction %s", ridx, Faction.Meta[idx][@name]);
+					continue;
+				}
+
+				cache_get_value_name_int(row, "colour", Faction.Rank[idx][ridx][@colour]);
+				cache_get_value_name(row, "rank_name", Faction.Rank[idx][ridx][@name]);
+			}
 		}
 
 		log("Loaded %d factions", Iter_Count(Faction));
@@ -77,22 +94,25 @@ hook OnGameModeInit()
 		LoadedSystems++;
 	}
 
-	new query[512];
+	new query[640];
 	mysql_format(
 		dbhandle,
 		query,
 		sizeof query,
 		"SELECT f.*, \
 		fm.player_id, fm.rank, p3.name AS member_name, \
+		fr.name AS rank_name, fr.rank AS rank_meta, \
+		fr.colour, \
 		p1.name AS creator, \
 		p2.name AS owner \
 		FROM " FACTION_TABLE " f \
 		LEFT JOIN " FACTION_MEMBER_TABLE " fm ON fm.faction_id = f.id \
+		LEFT JOIN " FACTION_RANK_TABLE " fr ON fr.faction_id = f.id \
 		LEFT JOIN " PLAYER_TABLE " p1 ON p1.id = f.creator_id \
 		LEFT JOIN " PLAYER_TABLE " p2 ON p2.id = f.owner_id \
 		LEFT JOIN " PLAYER_TABLE " p3 ON p3.id = fm.player_id \
-		GROUP BY fm.id, f.id \
-		ORDER BY f.id ASC, fm.id ASC");
+		GROUP BY fm.id, fr.id, f.id \
+		ORDER BY f.id ASC, fm.id ASC, fr.rank ASC");
 	mysql_pquery_inline(dbhandle, query, using inline Handler);
 	TotalSystems++;
 
