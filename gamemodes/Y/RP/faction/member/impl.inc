@@ -385,7 +385,7 @@ FactionChangeMemberRankDialog(playerid, factionid, member, error = 0)
 		}
 
 		new rank;
-		if (sscanf(inputtext, "d", rank) || !(0 < rank < Y_RP_FACTION_MAX_RANK)) {
+		if (sscanf(inputtext, "d", rank) || !(0 <= rank < Y_RP_FACTION_MAX_RANK)) {
 			@return FactionChangeMemberRankDialog(playerid, factionid, member, 1);
 		}
 

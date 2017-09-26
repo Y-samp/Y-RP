@@ -66,7 +66,7 @@ YCMD:factionchat(playerid, params[], help)
 		toBeSent[145]
 	;
 
-	format(toBeSent, sizeof toBeSent, "{%06x}[%s]{%06x}: %s", Faction.Rank[factionid][rank][@colour] >>> 8, Faction.Rank[factionid][rank][@name], GetColour("NORMAL") >>> 8, message);
+	format(toBeSent, sizeof toBeSent, "{%06x}[%s] {%06x}%s: %s", Faction.Rank[factionid][rank][@colour] >>> 8, Faction.Rank[factionid][rank][@name], GetColour("NORMAL") >>> 8, Player.RP[playerid][@name], message);
 
 	foreach (new member:GroupMember(factionGroup)) {
 		SCM(member, -1, toBeSent);
