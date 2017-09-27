@@ -5,5 +5,6 @@
 #include "core\header"
 #include "status\header"
 #include "member\header"
+#include "rank\header"
 #include "object\header"
 #include "chat\header"

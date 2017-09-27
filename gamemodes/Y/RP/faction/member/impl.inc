@@ -11,9 +11,18 @@ hook OnGameModeInit()
 	AllFactionGroup = Group_Create("In faction");
 	FactionLeaderGroup = Group_Create("Faction leader");
 	for (new i = 0; i != Y_RP_FACTION_LIMIT; ++i) {
-		new name[12];
+		new name[32];
 		format(name, sizeof name, "Faction %d", i + 1);
 		FactionGroup[i] = Group_Create(name);
+	
+		for (new j = 0; j != Y_RP_FACTION_MAX_RANK; ++j) {
+			format(name, sizeof name, "Faction %d Rank %d", i + 1, j);
+			FactionRankGroup[i][j] = Group_Create(name);
+
+			if (j > 0) {
+				Group_AddChild(FactionRankGroup[i][j], FactionRankGroup[i][j - 1]);
+			}
+		}
 	}
 
 	return 1;
@@ -113,17 +122,18 @@ IsPlayerInAnyFaction(playerid)
 	return !!Group_GetPlayer(AllFactionGroup, playerid);
 }
 
-Group:GetPlayerFactionGroup(playerid)
+GetPlayerFactionMeta(playerid, &Group:group = INVALID_GROUP, &faction = INVALID_FACTION_ID, &rank = 0)
 {
-	foreach (new faction:Faction) {
-		foreach (new member:OnlineFactionMember[faction]) {
-	  	if (Faction.Member[faction][member][@player] == playerid) {
-	  		return FactionGroup[faction];
+	foreach (new factionid:Faction) {
+		foreach (new memberid:OnlineFactionMember[factionid]) {
+	  	if (Faction.Member[factionid][memberid][@player] == playerid) {
+	  		group = FactionGroup[factionid];
+	  		faction = factionid;
+	  		rank = Faction.Member[factionid][memberid][@rank];
+	  		return;
 	  	}
 	  }
 	}
-
-	return INVALID_GROUP;
 }
 
 ListFactionMembers(playerid, factionid)
@@ -385,9 +395,11 @@ FactionChangeMemberRankDialog(playerid, factionid, member, error = 0)
 		}
 
 		new rank;
-		if (sscanf(inputtext, "d", rank) || !(0 <= rank < Y_RP_FACTION_MAX_RANK)) {
+		if (sscanf(inputtext, "d", rank) || !(1 <= rank <= Y_RP_FACTION_MAX_RANK)) {
 			@return FactionChangeMemberRankDialog(playerid, factionid, member, 1);
 		}
+
+		rank -= 1;
 
 		FactionChangeMemberRank(factionid, member, rank);
 		Text_Send(playerid, $FACTION_MEMBER_CHANGED_RANK, Faction.Member[factionid][member][@player_name], rank);

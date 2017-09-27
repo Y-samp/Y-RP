@@ -27,6 +27,8 @@ hook OnGameModeInit()
 			rows = cache_num_rows(),
 			idx = INVALID_ITERATOR_SLOT,
 			lastId = 0,
+			lastMember,
+			lastRank = -1,
 			midx
 		;
 
@@ -56,36 +58,55 @@ hook OnGameModeInit()
 				lastId = id;
 			}
 
-			new bool:hasMember;
+			new
+				bool:hasMember,
+				member
+			;
 			cache_is_value_name_null(row, "player_id", hasMember);
 			hasMember = !hasMember;
 
 			if (hasMember) {
 				midx = Iter_Free(FactionMember[idx]);
-				cache_get_value_name_int(row, "player_id", _:Faction.Member[idx][midx][@player_id]);
-				cache_get_value_name(row, "member_name", Faction.Member[idx][midx][@player_name]);
-				cache_get_value_name_int(row, "rank", Faction.Member[idx][midx][@rank]);
+				
+				cache_get_value_name_int(row, "player_id", member);
 
-				RPizeName(Faction.Member[idx][midx][@player_name]);
+				if (lastMember != member) {
+					lastMember = member;
+					
+					Faction.Member[idx][midx][@player_id] = DBID:member;
 
-				Iter_Add(FactionMember[idx], midx);
+					cache_get_value_name_int(row, "player_id", _:Faction.Member[idx][midx][@player_id]);
+					cache_get_value_name(row, "member_name", Faction.Member[idx][midx][@player_name]);
+					cache_get_value_name_int(row, "rank", Faction.Member[idx][midx][@rank]);
+
+					RPizeName(Faction.Member[idx][midx][@player_name]);
+
+					Iter_Add(FactionMember[idx], midx);
+				}
 			}
 
-			new bool:hasRank;
+			new
+				bool:hasRank,
+				ridx
+			;
 			cache_is_value_name_null(row, "rank_meta", hasRank);
 			hasRank = !hasRank;
 
 			if (hasRank) {
-				new ridx;
 				cache_get_value_name_int(row, "rank_meta", ridx);
 
-				if (!(0 <= ridx < Y_RP_FACTION_MAX_RANK)) {
-					err("Invalid rank (%d) loaded from database for faction %s", ridx, Faction.Meta[idx][@name]);
-					continue;
-				}
+				if (lastRank != ridx) {
+					lastRank = ridx;
 
-				cache_get_value_name_int(row, "colour", Faction.Rank[idx][ridx][@colour]);
-				cache_get_value_name(row, "rank_name", Faction.Rank[idx][ridx][@name]);
+					if (!(0 <= ridx < Y_RP_FACTION_MAX_RANK)) {
+						err("Invalid rank (%d) loaded from database for faction %s", ridx, Faction.Meta[idx][@name]);
+						continue;
+					}
+
+					cache_get_value_name_int(row, "colour", Faction.Rank[idx][ridx][@colour]);
+					cache_get_value_name(row, "rank_name", Faction.Rank[idx][ridx][@name]);
+
+				}
 			}
 		}
 
@@ -227,15 +248,34 @@ InspectFaction(playerid, factionid)
 
 		new
 			bool:authorizedName = false,
-			bool:authorizedMoney = false
+			bool:authorizedMoney = false,
+			bool:authorizedRanks = false,
+			bool:authorizedColour = false
 		;
 
 		if (IsAdminLevel(playerid, Y_RP_FACTION_ADMIN_MANAGE_LEVEL)) {
 			authorizedName = true;
 			authorizedMoney = true;
-		} else if (IsFactionLevel(playerid, factionid, Y_RP_FACTION_CHANGE_NAME_LEVEL)) {
+			authorizedRanks = true;
+			authorizedColour = true;
+		}
+
+		if (IsFactionLevel(playerid, factionid, Y_RP_FACTION_CHANGE_NAME_LEVEL)) {
 			authorizedName = true;
 		}
+
+		if (IsFactionLevel(playerid, factionid, Y_RP_FACTION_MANAGE_RANKS_LEVEL)) {
+			authorizedRanks = true;
+		}
+
+		if (IsFactionLevel(playerid, factionid, Y_RP_FACTION_CHANGE_COLOUR_LEVEL)) {
+			authorizedColour = true;
+		}
+
+		// DO NOT ALLOW FACITON TO EDIT ITS OWN MONEY. Seriously, why would you want that
+		// if (IsFactionLevel(playerid, factionid, INFINITY)) {
+		// 	authorizedMoney = true;
+		// }
 
 		switch (listitem) {
 			case E_FACTION_INSPECT_NAME: {
@@ -251,6 +291,16 @@ InspectFaction(playerid, factionid)
 			case E_FACTION_INSPECT_MEMBERS: {
 				@return ListFactionMembers(playerid, factionid);
 			}
+			case E_FACTION_INSPECT_RANKS: {
+				if (authorizedRanks) {
+					@return EditFactionRanks(playerid, factionid);
+				}
+			}
+			case E_FACTION_INSPECT_COLOURS: {
+				if (authorizedColour) {
+					@return EditFactionColour(playerid, factionid);
+				}	
+			} 
 			default: {
 				err("Player %d chose invalid option %d", playerid, listitem);
 			}
@@ -343,6 +393,13 @@ EditFactionMoney(playerid, factionid, bool:error = false)
 	Text_InputBox(playerid, using inline Response, $FACTIONS_SET_MONEY_TITLE, $FACTIONS_SET_MONEY_BODY, $OK, $BACK, errorText, Faction.Meta[factionid][@name]);
 
 	return 1;
+}
+
+EditFactionColour(playerid, factionid)
+{
+	
+
+	return 1;	
 }
 
 YCMD:factions(playerid, params[], help)

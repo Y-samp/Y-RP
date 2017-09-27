@@ -28,6 +28,7 @@ new Iterator:OnlineFactionMember[Y_RP_FACTION_LIMIT]<Y_RP_FACTION_MEMBER_LIMIT>;
 new Group:AllFactionGroup;
 new Group:FactionLeaderGroup;
 new Group:FactionGroup[Y_RP_FACTION_LIMIT];
+new Group:FactionRankGroup[Y_RP_FACTION_LIMIT][Y_RP_FACTION_MAX_RANK];
 
 #define FACTION_MEMBER_TABLE "rp_faction_members"
 
