@@ -49,6 +49,7 @@ hook OnGameModeInit()
 				cache_get_value_name(row, "creator", Faction.Meta[idx][@creator_name]);
 				cache_get_value_name_int(row, "owner_id", _:Faction.Meta[idx][@owner_id]);
 				cache_get_value_name(row, "owner", Faction.Meta[idx][@owner_name]);
+				cache_get_value_name_int(row, "colour", Faction.Meta[idx][@colour]);
 				cache_get_value_name_int(row, "money", Faction.Status[idx][@money]);
 
 				RPizeName(Faction.Meta[idx][@creator_name]);
@@ -103,7 +104,7 @@ hook OnGameModeInit()
 						continue;
 					}
 
-					cache_get_value_name_int(row, "colour", Faction.Rank[idx][ridx][@colour]);
+					cache_get_value_name_int(row, "rank_colour", Faction.Rank[idx][ridx][@colour]);
 					cache_get_value_name(row, "rank_name", Faction.Rank[idx][ridx][@name]);
 
 				}
@@ -122,8 +123,7 @@ hook OnGameModeInit()
 		sizeof query,
 		"SELECT f.*, \
 		fm.player_id, fm.rank, p3.name AS member_name, \
-		fr.name AS rank_name, fr.rank AS rank_meta, \
-		fr.colour, \
+		fr.name AS rank_name, fr.rank AS rank_meta, fr.colour AS rank_colour, \
 		p1.name AS creator, \
 		p2.name AS owner \
 		FROM " FACTION_TABLE " f \
@@ -203,16 +203,18 @@ ListFactions(playerid)
 			numMemebers = Iter_Count(FactionMember[faction]),
 			name[Y_RP_FACTION_MAX_NAME],
 			ownerName[MAX_PLAYER_NAME + 1],
-			money = Faction.Status[faction][@money]
+			money = Faction.Status[faction][@money],
+			colour = Faction.Meta[faction][@colour],
+			normal = GetColour("NORMAL") >>> 8
 		;
 
 		strcpy(name, Faction.Meta[faction][@name]);
 		strcpy(ownerName, Faction.Meta[faction][@owner_name]);
 
 		if (IsAdminLevel(playerid, 1)) {
-			format(factions, sizeof factions, "%s\nid: %d) %s\t%d\t%s\t$%d", factions, id, name, numMemebers, ownerName, money);
+			format(factions, sizeof factions, "%s\nid: %d) {%06x}%s{%06x}\t%d\t%s\t$%d", factions, id, colour, name, normal, numMemebers, ownerName, money);
 		} else {
-			format(factions, sizeof factions, "%s\nid: %d) %s\t%d\t%s", factions, id, name, numMemebers, ownerName);				
+			format(factions, sizeof factions, "%s\nid: %d) {%06x}%s{%06x}\t%d\t%s", factions, id, colour, name, normal, numMemebers, ownerName);				
 		}
 	}
 

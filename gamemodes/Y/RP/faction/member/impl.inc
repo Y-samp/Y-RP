@@ -417,7 +417,7 @@ FactionChangeMemberRankDialog(playerid, factionid, member, error = 0)
 		Text_Format_Dialog(errorText, sizeof errorText, Langs_GetPlayerLanguage(playerid), $FACTION_INSPECT_MEMBER_CHANGE_RANK_INVALID);
 	}
 	
-	return Text_InputBox(playerid, using inline Response, $FACTION_INSPECT_MEMBER_CHANGE_RANK_TITLE, $FACTION_INSPECT_MEMBER_CHANGE_RANK_BODY, $OK, $BACK, errorText, Faction.Member[factionid][member][@player_name], 0, Y_RP_FACTION_MAX_RANK - 1);
+	return Text_InputBox(playerid, using inline Response, $FACTION_INSPECT_MEMBER_CHANGE_RANK_TITLE, $FACTION_INSPECT_MEMBER_CHANGE_RANK_BODY, $OK, $BACK, errorText, Faction.Member[factionid][member][@player_name], 1, Y_RP_FACTION_MAX_RANK);
 }
 
 FactionChangeMemberRank(factionid, member, rank)

@@ -24,7 +24,8 @@ enum E_FACTION_META {
 	DBID:E_FACTION_Meta_creator_id,
 	E_FACTION_Meta_creator_name[MAX_PLAYER_NAME + 1],
 	DBID:E_FACTION_Meta_owner_id,
-	E_FACTION_Meta_owner_name[MAX_PLAYER_NAME + 1]
+	E_FACTION_Meta_owner_name[MAX_PLAYER_NAME + 1],
+	E_FACTION_Meta_colour
 }
 
 new FactionMeta[Y_RP_FACTION_LIMIT][E_FACTION_META];
