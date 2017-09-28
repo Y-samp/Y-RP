@@ -96,3 +96,17 @@ UpdateRankName(factionid, rank, name[])
 	mysql_format(dbhandle, query, sizeof query, "UPDATE " FACTION_RANK_TABLE " SET name = '%e' WHERE faction_id = %d AND rank = %d", name, _:Faction.Meta[factionid][@id], rank);
 	mysql_tquery(dbhandle, query);
 }
+
+ChangeFactionColour(playerid, factionid, colour)
+{
+	new
+		Float:closest = 0.3,
+		Float:step = (1.0 - closest) / Y_RP_FACTION_MAX_RANK
+	;
+
+	for (new rank = 0; rank != Y_RP_FACTION_MAX_RANK; ++rank) {
+		Faction.Rank[factionid][rank][@colour] = FadeToWhite(colour, (step * (Y_RP_FACTION_MAX_RANK - rank)));
+	}
+
+	return InspectFaction(playerid, factionid);
+}

@@ -137,7 +137,35 @@ hook OnGameModeInit()
 	mysql_pquery_inline(dbhandle, query, using inline Handler);
 	TotalSystems++;
 
+	CreateColourPicker();
+
 	return 1;
+}
+
+hook OnPlayerClickTextDraw(playerid, Text:clickedid)
+{
+	if (EditingFactionColours{playerid}) {
+		if (clickedid == Text:INVALID_TEXT_DRAW || clickedid == ChangeColor[1]) {
+			HideColourPicker(playerid);
+
+			InspectFaction(playerid, EditingFactionColoursFID[playerid]);
+		} else {
+			for (new i = 2; i < sizeof(ChangeColor); i++)	{
+				if (clickedid == ChangeColor[i])	{
+					HideColourPicker(playerid);
+
+					ChangeFactionColour(playerid, EditingFactionColoursFID[playerid], AllFactionColours[i - 2] >>> 8);
+				}
+			}
+		}
+
+		EditingFactionColours{playerid} = false;
+		EditingFactionColoursFID[playerid] = INVALID_FACTION_ID;
+
+		return Y_HOOKS_BREAK_RETURN_1;
+	}
+
+	return 0;
 }
 
 GetFactionIndexFromDBID(DBID:dbid)
@@ -397,9 +425,100 @@ EditFactionMoney(playerid, factionid, bool:error = false)
 
 EditFactionColour(playerid, factionid)
 {
-	
+	EditingFactionColours{playerid} = true;
+	EditingFactionColoursFID[playerid] = factionid;
+
+	ShowColourPicker(playerid);
 
 	return 1;	
+}
+
+CreateColourPicker()
+{
+	new
+		inRow = 5,
+		Float:tilesize = 40.0,
+		Float:padding = 3.0,
+		Float:offsetX = (640.0 - inRow * tilesize - (inRow - 1) * padding) / 2,
+		Float:offsetY = 138.0,
+		Float:X = offsetX,
+		Float:Y = offsetY,
+		count = 0
+	;
+
+	ChangeColor[0] = TextDrawCreate(320.0, offsetY, "box");
+	TextDrawLetterSize(ChangeColor[0], 0.0, 19);
+	TextDrawTextSize(ChangeColor[0], 0.0, inRow * tilesize + (inRow - 1) * padding);
+	TextDrawAlignment(ChangeColor[0], 2);
+	TextDrawColor(ChangeColor[0], -1);
+	TextDrawUseBox(ChangeColor[0], 1);
+	TextDrawBoxColor(ChangeColor[0], 102);
+	TextDrawSetOutline(ChangeColor[0], 0);
+	TextDrawBackgroundColor(ChangeColor[0], 255);
+	TextDrawFont(ChangeColor[0], 1);
+	TextDrawSetProportional(ChangeColor[0], 1);
+	TextDrawSetShadow(ChangeColor[0], 0);
+
+	ChangeColor[1] = TextDrawCreate(320.0, 360.116699, "Close");
+	TextDrawLetterSize(ChangeColor[1], 0.600000, 2.100000);
+	TextDrawTextSize(ChangeColor[1], 19.0, 82.327926);
+	TextDrawAlignment(ChangeColor[1], 2);
+	TextDrawColor(ChangeColor[1], -1);
+	TextDrawUseBox(ChangeColor[1], 1);
+	TextDrawBoxColor(ChangeColor[1], 102);
+	TextDrawSetOutline(ChangeColor[1], 0);
+	TextDrawBackgroundColor(ChangeColor[1], 255);
+	TextDrawFont(ChangeColor[1], 2);
+	TextDrawSetProportional(ChangeColor[1], 1);
+	TextDrawSetShadow(ChangeColor[1], 0);
+	TextDrawSetSelectable(ChangeColor[1], 1);
+	
+	for (new i = 2; i < sizeof(ChangeColor); i++)
+	{
+		ChangeColor[i] = TextDrawCreate(X, Y, "box");
+		TextDrawBackgroundColor(ChangeColor[i], AllFactionColours[i-2]);
+		TextDrawLetterSize(ChangeColor[i], 0.0, tilesize);
+		TextDrawTextSize(ChangeColor[i], tilesize, tilesize);
+		TextDrawAlignment(ChangeColor[i], 1);
+		TextDrawColor(ChangeColor[i], -1);
+		TextDrawUseBox(ChangeColor[i], 1);
+		TextDrawBoxColor(ChangeColor[i], 0);
+		TextDrawSetOutline(ChangeColor[i], 0);
+		TextDrawFont(ChangeColor[i], 5);
+		TextDrawSetProportional(ChangeColor[i], 1);
+		TextDrawSetShadow(ChangeColor[i], 1);
+		TextDrawSetPreviewModel(ChangeColor[i], 19349);
+		TextDrawSetPreviewRot(ChangeColor[i], -16.0, 0.0, -180.0, 0.7);
+		TextDrawSetSelectable(ChangeColor[i], 1);
+
+		X += tilesize + padding;
+		count++;
+
+		if (count == inRow)
+		{
+			Y += tilesize + padding;
+			X = offsetX;
+			count = 0;
+		}
+	}
+}
+
+ShowColourPicker(playerid)
+{
+	for (new i; i < sizeof(ChangeColor); i++) {
+		TextDrawShowForPlayer(playerid, ChangeColor[i]);
+	}
+
+	SelectTextDraw(playerid, 0xFFFFFF00);
+}
+
+HideColourPicker(playerid)
+{
+	for (new i; i < sizeof(ChangeColor); i++) {
+		TextDrawHideForPlayer(playerid, ChangeColor[i]);
+	}
+
+	CancelSelectTextDraw(playerid);
 }
 
 YCMD:factions(playerid, params[], help)
